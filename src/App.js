@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import StarRating from './components/StarRating';
+import TextExpander from './components/TextExpander';
 
 const tempMovieData = [
   {
@@ -189,6 +191,8 @@ function Box({ children }) {
   );
 }
 
+const OMDB_KEY = '2b39c271';
+
 function Main({ children }) {
   return <main className="main">{children}</main>;
 }
@@ -197,9 +201,19 @@ export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
 
+  useEffect(() => {
+    fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${OMDB_KEY}&s=zombie`)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        setMovies(data.Search);
+      });
+  }, []);
+  console.log(movies);
+
   return (
     <>
-      <Navbar moviesCount={movies.length} />
+      {/* <Navbar moviesCount={movies.length} /> */}
       <Main>
         <Box>
           <MoviesList movies={movies} />
