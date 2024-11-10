@@ -9,14 +9,19 @@ export default function TextExpander({
 }) {
   const [collapsed, setCollapsed] = useState(false);
 
-  const handleExpandClick = () => setCollapsed(collapsed => !collapsed);
+  const handleExpandClick = () => setCollapsed((collapsed) => !collapsed);
 
-  const text = collapsed ? (children || '').split(' ').slice(0, collapsedNumWords).join(' ') + '...' : children;
+  const text = collapsed
+    ? (children || '').split(' ').slice(0, collapsedNumWords).join(' ') + '...'
+    : children;
 
   return (
     <div>
-      {text}{' '}
-      <span style={{ color: buttonColor, cursor: 'pointer' }} onClick={handleExpandClick}>
+      {text}
+      <span
+        style={{ color: buttonColor, cursor: 'pointer' }}
+        onClick={handleExpandClick}
+      >
         {collapsed ? expandButtonText : collapseButtonText}
       </span>
     </div>

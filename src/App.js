@@ -7,7 +7,8 @@ const tempMovieData = [
     imdbID: 'tt1375666',
     Title: 'Inception',
     Year: '2010',
-    Poster: 'https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg',
+    Poster:
+      'https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg',
   },
   {
     imdbID: 'tt0133093',
@@ -30,7 +31,8 @@ const tempWatchedData = [
     imdbID: 'tt1375666',
     Title: 'Inception',
     Year: '2010',
-    Poster: 'https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg',
+    Poster:
+      'https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg',
     runtime: 148,
     imdbRating: 8.8,
     userRating: 10,
@@ -47,7 +49,8 @@ const tempWatchedData = [
   },
 ];
 
-const average = arr => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+const average = (arr) =>
+  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 function Logo() {
   return (
@@ -67,7 +70,7 @@ function Search() {
       type="text"
       placeholder="Search movies..."
       value={query}
-      onChange={e => setQuery(e.target.value)}
+      onChange={(e) => setQuery(e.target.value)}
     />
   );
 }
@@ -131,7 +134,7 @@ function WatchedMovie({ movie }) {
 function MoviesList({ movies }) {
   return (
     <ul className="list">
-      {movies?.map(movie => (
+      {movies?.map((movie) => (
         <Movie movie={movie} key={movie.imdbID} />
       ))}
     </ul>
@@ -141,7 +144,7 @@ function MoviesList({ movies }) {
 function WatchedList({ watched }) {
   return (
     <ul className="list">
-      {watched.map(movie => (
+      {watched.map((movie) => (
         <WatchedMovie movie={movie} key={movie.imdbID} />
       ))}
     </ul>
@@ -149,9 +152,9 @@ function WatchedList({ watched }) {
 }
 
 function WatchedSummary({ watched }) {
-  const avgImdbRating = average(watched.map(movie => movie.imdbRating));
-  const avgUserRating = average(watched.map(movie => movie.userRating));
-  const avgRuntime = average(watched.map(movie => movie.runtime));
+  const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
+  const avgUserRating = average(watched.map((movie) => movie.userRating));
+  const avgRuntime = average(watched.map((movie) => movie.runtime));
 
   return (
     <div className="summary">
@@ -183,7 +186,7 @@ function Box({ children }) {
 
   return (
     <div className="box">
-      <button className="btn-toggle" onClick={() => setIsOpen(open => !open)}>
+      <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
         {isOpen ? '–' : '+'}
       </button>
       {isOpen && children}
@@ -199,23 +202,45 @@ function Loader() {
   return <p className="loader">Loading...</p>;
 }
 
+function ErrorMessage({ message }) {
+  return (
+    <p className="error">
+      <span>⛔</span> {message}
+    </p>
+  );
+}
+
 const OMDB_KEY = '2b39c271';
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
   const [isLoading, setIsLoading] = useState(false);
+  const [fetchingError, setFetchingError] = useState('');
 
   useEffect(() => {
     const fetchMoves = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${OMDB_KEY}&s=zombie`);
+        const res = await fetch(
+          `http://www.omdbapi.com/?i=tt3896198&apikey=${OMDB_KEY}&s=pig`,
+        );
+
+        if (!res.ok) {
+          throw new Error('Something went wrong with fetching movies');
+        }
+
         const data = await res.json();
+        if (data.Response === 'False') {
+          throw new Error('Movie not found');
+        }
+
         setMovies(data.Search);
-        setIsLoading(false);
       } catch (err) {
-        console.error(`Movies are not fetched, reason: ${err}`);
+        console.error(`Movies are not fetched, reason: ${err.message}`);
+        setFetchingError(err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchMoves();
@@ -225,7 +250,11 @@ export default function App() {
     <>
       {/* <Navbar moviesCount={movies.length} /> */}
       <Main>
-        <Box>{isLoading ? <Loader /> : <MoviesList movies={movies} />}</Box>
+        <Box>
+          {isLoading && <Loader />}
+          {!isLoading && !fetchingError && <MoviesList movies={movies} />}
+          {fetchingError && <ErrorMessage message={fetchingError} />}
+        </Box>
         <Box>
           <WatchedSummary watched={watched} />
           <WatchedList watched={watched} />
