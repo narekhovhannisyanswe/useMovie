@@ -191,33 +191,41 @@ function Box({ children }) {
   );
 }
 
-const OMDB_KEY = '2b39c271';
-
 function Main({ children }) {
   return <main className="main">{children}</main>;
 }
 
+function Loader() {
+  return <p className="loader">Loading...</p>;
+}
+
+const OMDB_KEY = '2b39c271';
+
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${OMDB_KEY}&s=zombie`)
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
+    const fetchMoves = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${OMDB_KEY}&s=zombie`);
+        const data = await res.json();
         setMovies(data.Search);
-      });
+        setIsLoading(false);
+      } catch (err) {
+        console.error(`Movies are not fetched, reason: ${err}`);
+      }
+    };
+    fetchMoves();
   }, []);
-  console.log(movies);
 
   return (
     <>
       {/* <Navbar moviesCount={movies.length} /> */}
       <Main>
-        <Box>
-          <MoviesList movies={movies} />
-        </Box>
+        <Box>{isLoading ? <Loader /> : <MoviesList movies={movies} />}</Box>
         <Box>
           <WatchedSummary watched={watched} />
           <WatchedList watched={watched} />
