@@ -235,9 +235,9 @@ function WatchedMovie({ movie, onDeleteWatched }) {
   );
 }
 
-function MoviesList({ movies, onSelectMovie }) {
+function MovieList({ movies, onSelectMovie }) {
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie) => (
         <Movie movie={movie} key={movie.imdbID} onSelectMovie={onSelectMovie} />
       ))}
@@ -385,7 +385,7 @@ export default function App() {
       <Main>
         <Box>
           {isLoading && <Loader />}
-          {!isLoading && !fetchingError && <MoviesList movies={movies} onSelectMovie={handleSelectMovie} />}
+          {!isLoading && !fetchingError && <MovieList movies={movies} onSelectMovie={handleSelectMovie} />}
           {fetchingError && <ErrorMessage message={fetchingError} />}
         </Box>
         <Box>
